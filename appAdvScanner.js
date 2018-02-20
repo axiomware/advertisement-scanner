@@ -15,6 +15,7 @@ var figlet = require('figlet');
 
 //Gobal variables
 var gapi = new netrunr.gapi();//Create an instance  Netrunr gateway object
+var exitFlag = false;                                   //set flag when exiting
 var gConnStatus = 0; //1-> if connected to gateway 0-> otherwise
 
 //User configuration
@@ -129,6 +130,7 @@ function axGetVersionInfo(gwid) {
  * 
  */
 function axScanForBLEdev() {
+    if(!exitFlag) {
     gapi.list({ 'active': userConfig.scanMode, 'period': userConfig.scanPeriod },
         function (robj) {
             //console.log('List started' + JSON.stringify(robj, null, 0) + '\nType CTRL-C to exit');
@@ -136,6 +138,7 @@ function axScanForBLEdev() {
         function (robj) {
             axShutdown('List failed' + JSON.stringify(robj, null, 0));
         });
+    }
 }
 
 /**
@@ -182,6 +185,7 @@ function myGatewayReportHandler(iobj) {
  */
 function axShutdown(prnStr) {
     console.log(prnStr);
+    exitFlag = true;
     if (gConnStatus) {
         gapi.list({ 'active': userConfig.scanMode, 'period': 0 }, axLogout, axLogout); // stop scanning
     }
